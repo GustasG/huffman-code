@@ -1,0 +1,9 @@
+# build artifacts
+debug/
+target/
+
+# big directories
+data/
+
+# Visual Studio Code
+.vscode/
