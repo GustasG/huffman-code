@@ -14,8 +14,8 @@ enum NodePayload {
 
 #[derive(Debug, Eq, PartialEq)]
 struct Node {
-    pub freq: usize,
-    pub payload: NodePayload,
+    freq: usize,
+    payload: NodePayload,
 }
 
 impl Ord for Node {
@@ -121,6 +121,7 @@ fn compress<R: Read, W: BitWrite>(
     reader: &mut R,
     writer: &mut W,
     nodes: Vec<Node>,
+    file_size: u64,
 ) -> Result<(), std::io::Error> {
     let tree = match create_tree(nodes) {
         Some(root) => root,
@@ -130,6 +131,7 @@ fn compress<R: Read, W: BitWrite>(
     let table = create_table(&tree);
 
     write_header(writer, &tree)?;
+    writer.write(64, file_size)?;
 
     for byte in reader.bytes() {
         let byte = byte?;
@@ -146,12 +148,13 @@ pub fn compress_file<P: AsRef<Path>>(input_path: P, output_path: P) -> Result<()
     let fin = File::open(&input_path)?;
     let mut reader = BufReader::with_capacity(32 * 1024, fin);
     let nodes = count_frequency(&input_path)?;
+    let file_size = std::fs::metadata(&input_path)?.len();
 
     let fout = File::create(&output_path)?;
     let writer = BufWriter::with_capacity(32 * 1024, fout);
     let mut writer = BitWriter::endian(writer, BigEndian);
 
-    match compress(&mut reader, &mut writer, nodes) {
+    match compress(&mut reader, &mut writer, nodes, file_size) {
         Ok(()) => Ok(()),
         Err(e) => {
             std::fs::remove_file(output_path).ok();

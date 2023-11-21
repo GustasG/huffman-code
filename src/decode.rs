@@ -39,7 +39,7 @@ fn read_header<R: BitRead>(reader: &mut R) -> Result<Node, std::io::Error> {
     match reader.read_bit()? {
         false => {
             let byte = reader.read::<u8>(8)?;
-            return Ok(Node::Leaf(byte));
+            Ok(Node::Leaf(byte))
         }
         true => {
             let left = read_header(reader)?;
@@ -63,22 +63,18 @@ fn decompress<R: BitRead, W: BitWrite>(
     };
 
     let table = create_table(&tree);
+    let file_size = reader.read::<u64>(64)?;
     let mut buffer = Vec::new();
+    let mut total_written = 0;
 
-    loop {
-        match reader.read_bit() {
-            Err(e) => match e.kind() {
-                std::io::ErrorKind::UnexpectedEof => break,
-                _ => return Err(e),
-            },
-            Ok(bit) => {
-                buffer.push(bit);
+    while total_written < file_size {
+        let bit = reader.read_bit()?;
+        buffer.push(bit);
 
-                if let Some(value) = table.get(&buffer) {
-                    writer.write(8, *value)?;
-                    buffer.clear();
-                }
-            }
+        if let Some(value) = table.get(&buffer) {
+            writer.write(8, *value)?;
+            total_written += 1;
+            buffer.clear();
         }
     }
 

@@ -48,9 +48,6 @@ fn run_decompression(input_path: &Path, output_path: &Path) {
 }
 
 fn main() {
-    // run_compression(Path::new("data/hello.txt"), Path::new("out.bin"));
-    // run_decompression(Path::new("out.bin"), Path::new("text.txt"));
-
-    run_compression(Path::new("data/big_bmp.bmp"), Path::new("out.bin"));
-    run_decompression(Path::new("out.bin"), Path::new("image.bmp"));
+    run_compression(Path::new("data/hello.txt"), Path::new("out.bin"));
+    run_decompression(Path::new("out.bin"), Path::new("text.txt"));
 }
