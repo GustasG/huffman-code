@@ -154,11 +154,5 @@ pub fn compress_file<P: AsRef<Path>>(input_path: P, output_path: P) -> Result<()
     let writer = BufWriter::with_capacity(32 * 1024, fout);
     let mut writer = BitWriter::endian(writer, BigEndian);
 
-    match compress(&mut reader, &mut writer, nodes, file_size) {
-        Ok(()) => Ok(()),
-        Err(e) => {
-            std::fs::remove_file(output_path).ok();
-            Err(e)
-        }
-    }
+    compress(&mut reader, &mut writer, nodes, file_size)
 }

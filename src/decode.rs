@@ -54,15 +54,14 @@ fn decompress<R: BitRead, W: BitWrite>(
     reader: &mut R,
     writer: &mut W,
 ) -> Result<(), std::io::Error> {
-    let tree = match read_header(reader) {
+    let table = match read_header(reader) {
         Err(e) => match e.kind() {
             ErrorKind::UnexpectedEof => return Ok(()),
             _ => return Err(e),
         },
-        Ok(tree) => tree,
+        Ok(tree) => create_table(&tree),
     };
 
-    let table = create_table(&tree);
     let file_size = reader.read::<u64>(64)?;
     let mut buffer = Vec::new();
     let mut total_written = 0;
@@ -93,11 +92,5 @@ pub fn decompress_file<P: AsRef<Path>>(
     let writer = BufWriter::with_capacity(32 * 1024, fout);
     let mut writer = BitWriter::endian(writer, BigEndian);
 
-    match decompress(&mut reader, &mut writer) {
-        Ok(()) => Ok(()),
-        Err(e) => {
-            std::fs::remove_file(output_path).ok();
-            Err(e)
-        }
-    }
+    decompress(&mut reader, &mut writer)
 }
