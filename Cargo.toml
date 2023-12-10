@@ -1,7 +1,12 @@
 [package]
 name = "huffman-code"
 version = "0.1.0"
+authors = ["Gustas Gedminas"]
+repository = "https://github.com/GustasG/huffman-code"
+description = "Huffman compression algorithm implementation"
+license = "MIT"
 edition = "2021"
 
 [dependencies]
-bitstream-io = "1.8.0"
+bitstream-io = "1.10.0"
+clap = { version = "4.4.11", features = ["cargo"] }
