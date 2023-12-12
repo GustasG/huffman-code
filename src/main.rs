@@ -99,7 +99,7 @@ fn main() {
             let input_path = matches.get_one::<PathBuf>("input").unwrap();
             let output_path = matches.get_one::<PathBuf>("output").unwrap();
 
-            run_decompression(Path::new(input_path), Path::new(output_path));
+            run_decompression(input_path, output_path);
         }
         _ => {
             command.print_help().unwrap();
